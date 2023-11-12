@@ -32,8 +32,8 @@ export const TodoListPanel = ({ items, getItems, onComplete }: TodoListPanelProp
                 <td>{item.id}</td>
                 <td>{item.description}</td>
                 <td>
-                  <Button variant={item.isCompleted ? "dark" : "warning"} size="sm" onClick={() => onComplete(item)} disabled={item.isCompleted}>
-                    Mark as completed
+                  <Button style={{ minWidth: "160px" }} variant={item.isCompleted ? "dark" : "warning"} size="sm" onClick={() => onComplete(item)} disabled={item.isCompleted}>
+                      {item.isCompleted ? "Completed" : "Mark as completed"}
                   </Button>
                 </td>
               </tr>

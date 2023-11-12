@@ -6,11 +6,13 @@ import {TodoItem} from "./models/todoItems";
 import {TodoAddPanel} from "./components/TodoAddPanel";
 import {TodoListPanel} from "./components/TodoListPanel";
 import {Notification, TodoNotification} from "./components/TodoNotification";
+import {useTodo} from "./hooks/useTodo";
 
 const App = () => {
   const [description, setDescription] = useState("")
   const [items, setItems] = useState<TodoItem[]>([])
   const [notification, setNotification] = useState<Notification>({ message: "", variant: "success" })
+  const { sortTodo } = useTodo()
 
   useEffect(() => {
     getItems().catch((error) => {
@@ -66,6 +68,7 @@ const App = () => {
   const getItems = async() => {
     try {
       const todoItems = await getAllTodo()
+      sortTodo(todoItems)
       setItems(todoItems)
       notify({ message: "Todo is loaded successfully", variant: "success" })
     } catch (error) {
