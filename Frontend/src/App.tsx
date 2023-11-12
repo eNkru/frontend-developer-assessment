@@ -1,6 +1,7 @@
 import './App.css';
 import { Image, Alert, Button, Container, Row, Col, Form, Table, Stack } from 'react-bootstrap';
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, ChangeEvent} from 'react';
+import {TodoHeader} from "./components/TodoHeader";
 
 const axios = require('axios');
 
@@ -15,7 +16,7 @@ const App = () => {
   const renderAddTodoItemContent = () => {
     return (
       <Container>
-        <h1>Add Item</h1>
+        <TodoHeader title="Add Item" />
         <Form.Group as={Row} className="mb-3" controlId="formAddTodoItem">
           <Form.Label column sm="2">
             Description
@@ -79,7 +80,7 @@ const App = () => {
     );
   };
 
-  const handleDescriptionChange = (event) => {
+  const handleDescriptionChange = (event: ChangeEvent) => {
     // todo
   };
 
@@ -103,7 +104,7 @@ const App = () => {
     setDescription('');
   }
 
-  async function handleMarkAsComplete(item) {
+  async function handleMarkAsComplete(item: any) {
     try {
       alert('todo');
     } catch (error) {
