@@ -2,11 +2,23 @@
  * This just a simple service layer for UI to handle the API calls. Can be refactored to more class based typescript.
  * Or use Redux.
  */
-import {BaseTodoItem, TodoItem, TodoItems} from "../models/todoItems";
+import {BaseTodoItem, TodoItem} from "../models/todoItems";
 import axios from "axios"
 
 // set the const for the service base url, in real project need to get from the environment or a vault.
 const API_BASE_URL = "/api"
+
+export const getAllTodo = async (): Promise<TodoItem[]> => {
+    try {
+        const url = `${API_BASE_URL}/todoItems`
+        const response = await axios.get(url)
+        return response.data
+    } catch (error) {
+        console.error("Failed to get all todo", error)
+        throw new Error(error.response.data)
+    }
+}
+
 export const addTodo = async (todo: string) => {
     try {
         const url = `${API_BASE_URL}/todoItems`
@@ -18,17 +30,18 @@ export const addTodo = async (todo: string) => {
     } catch (error) {
         // todo: shouldn"t use console.log for error log, this just a quick way to show error for tests.
         console.error("Failed to add todo", error)
-        throw new Error("Failed to add todo")
+        throw new Error(error.response.data)
     }
 }
 
-export const getAllTodo = async (): Promise<TodoItem[]> => {
+export const updateTodo = async (item: TodoItem): Promise<void> => {
     try {
-        const url = `${API_BASE_URL}/todoItems`
-        const response = await axios.get(url)
-        return response.data
+        const url = `${API_BASE_URL}/todoItems/${item.id}`
+        const payload: TodoItem = {...item, isCompleted: true}
+        await axios.put(url, payload)
     } catch (error) {
-        console.error("Failed to get all todo", error)
-        throw new Error("Failed to get todos")
+        // todo: shouldn"t use console.log for error log, this just a quick way to show error for tests.
+        console.error("Failed to add todo", error)
+        throw new Error(error.response.data)
     }
 }

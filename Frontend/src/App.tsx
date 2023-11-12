@@ -1,54 +1,29 @@
 import "./App.css"
-import { Image, Alert, Button, Container, Row, Col, Form, Table, Stack } from "react-bootstrap"
-import React, {useState, useEffect, ChangeEvent} from "react"
-import {TodoHeader} from "./components/TodoHeader"
-import {TodoInputPanel} from "./components/TodoInputPanel"
-import {addTodo, getAllTodo} from "./services/TodoService";
+import {Alert, Col, Container, Image, Row} from "react-bootstrap"
+import React, {ChangeEvent, useEffect, useState} from "react"
+import {addTodo, getAllTodo, updateTodo} from "./services/TodoService";
 import {TodoItem} from "./models/todoItems";
 import {TodoAddPanel} from "./components/TodoAddPanel";
+import {TodoListPanel} from "./components/TodoListPanel";
+import {Notification, TodoNotification} from "./components/TodoNotification";
 
 const App = () => {
   const [description, setDescription] = useState("")
   const [items, setItems] = useState<TodoItem[]>([])
+  const [notification, setNotification] = useState<Notification>({ message: "", variant: "success" })
 
   useEffect(() => {
-    getItems()
+    getItems().catch((error) => {
+      notify({ message: `Failed to load todo items - ${error.message}`, variant: "danger" })
+    })
   }, [])
 
-  const renderTodoItemsContent = () => {
-    return (
-      <>
-        <h1>
-          Showing {items.length} Item(s){" "}
-          <Button variant="primary" className="pull-right" onClick={() => getItems()}>
-            Refresh
-          </Button>
-        </h1>
+  const notify = (notification: Notification) => {
+    setNotification(notification)
+  }
 
-        <Table striped bordered hover>
-          <thead>
-            <tr>
-              <th>Id</th>
-              <th>Description</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items.map((item) => (
-              <tr key={item.id}>
-                <td>{item.id}</td>
-                <td>{item.description}</td>
-                <td>
-                  <Button variant="warning" size="sm" onClick={() => handleMarkAsComplete(item)}>
-                    Mark as completed
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </Table>
-      </>
-    )
+  const closeNotification = () => {
+    setNotification({ message: "", variant: "success" })
   }
 
   const handleDescriptionChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -61,9 +36,12 @@ const App = () => {
   const handleAdd = async () => {
     try {
       await addTodo(description)
+      // we can manually edit the list in the UI, but the easiest solution is get all todo from server again.
+      // unless there is a performance requirement.
       await getItems()
+      notify({ message: "Todo is added successfully", variant: "success" })
     } catch (error) {
-      // todo: show notification
+      notify({ message: `Failed to add todo - ${error.message}`, variant: "danger" })
     } finally {
       handleClear()
     }
@@ -73,11 +51,15 @@ const App = () => {
     setDescription("")
   }
 
-  const handleMarkAsComplete = async (item: any) => {
+  const handleMarkAsComplete = async (item: TodoItem) => {
     try {
-      alert("todo")
+      await updateTodo(item)
+      // we can manually edit the list in the UI, but the easiest solution is get all todo from server again.
+      // unless there is a performance requirement.
+      await getItems()
+      notify({ message: "Todo is updated successfully", variant: "success" })
     } catch (error) {
-      console.error(error)
+      notify({ message: `Failed to update todo - ${error.message}`, variant: "danger" })
     }
   }
 
@@ -85,8 +67,9 @@ const App = () => {
     try {
       const todoItems = await getAllTodo()
       setItems(todoItems)
+      notify({ message: "Todo is loaded successfully", variant: "success" })
     } catch (error) {
-      // todo: notifications
+      notify({ message: `Failed to load todo list - ${error.message}`, variant: "danger" })
     }
   }
 
@@ -128,7 +111,9 @@ const App = () => {
         </Row>
         <br />
         <Row>
-          <Col>{renderTodoItemsContent()}</Col>
+          <Col>
+            <TodoListPanel items={items} getItems={getItems} onComplete={handleMarkAsComplete} />
+          </Col>
         </Row>
       </Container>
       <footer className="page-footer font-small teal pt-4">
@@ -139,6 +124,7 @@ const App = () => {
           </a>
         </div>
       </footer>
+      <TodoNotification notification={notification} onClose={closeNotification} />
     </div>
   )
 }

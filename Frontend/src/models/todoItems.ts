@@ -8,7 +8,3 @@ export interface BaseTodoItem {
   description: string;
   isCompleted: boolean;
 }
-
-export interface TodoItems {
-  [key: string]: TodoItem;
-}
