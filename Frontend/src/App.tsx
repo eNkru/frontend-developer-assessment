@@ -1,54 +1,25 @@
-import './App.css';
-import { Image, Alert, Button, Container, Row, Col, Form, Table, Stack } from 'react-bootstrap';
-import React, {useState, useEffect, ChangeEvent} from 'react';
-import {TodoHeader} from "./components/TodoHeader";
-
-const axios = require('axios');
+import "./App.css"
+import { Image, Alert, Button, Container, Row, Col, Form, Table, Stack } from "react-bootstrap"
+import React, {useState, useEffect, ChangeEvent} from "react"
+import {TodoHeader} from "./components/TodoHeader"
+import {TodoInputPanel} from "./components/TodoInputPanel"
+import {addTodo, getAllTodo} from "./services/TodoService";
+import {TodoItem} from "./models/todoItems";
+import {TodoAddPanel} from "./components/TodoAddPanel";
 
 const App = () => {
-  const [description, setDescription] = useState('');
-  const [items, setItems] = useState([]);
+  const [description, setDescription] = useState("")
+  const [items, setItems] = useState<TodoItem[]>([])
 
   useEffect(() => {
-    // todo
-  }, []);
-
-  const renderAddTodoItemContent = () => {
-    return (
-      <Container>
-        <TodoHeader title="Add Item" />
-        <Form.Group as={Row} className="mb-3" controlId="formAddTodoItem">
-          <Form.Label column sm="2">
-            Description
-          </Form.Label>
-          <Col md="6">
-            <Form.Control
-              type="text"
-              placeholder="Enter description..."
-              value={description}
-              onChange={handleDescriptionChange}
-            />
-          </Col>
-        </Form.Group>
-        <Form.Group as={Row} className="mb-3 offset-md-2" controlId="formAddTodoItem">
-          <Stack direction="horizontal" gap={2}>
-            <Button variant="primary" onClick={() => handleAdd()}>
-              Add Item
-            </Button>
-            <Button variant="secondary" onClick={() => handleClear()}>
-              Clear
-            </Button>
-          </Stack>
-        </Form.Group>
-      </Container>
-    );
-  };
+    getItems()
+  }, [])
 
   const renderTodoItemsContent = () => {
     return (
       <>
         <h1>
-          Showing {items.length} Item(s){' '}
+          Showing {items.length} Item(s){" "}
           <Button variant="primary" className="pull-right" onClick={() => getItems()}>
             Refresh
           </Button>
@@ -77,38 +48,45 @@ const App = () => {
           </tbody>
         </Table>
       </>
-    );
-  };
+    )
+  }
 
-  const handleDescriptionChange = (event: ChangeEvent) => {
-    // todo
-  };
-
-  async function getItems() {
-    try {
-      alert('todo');
-    } catch (error) {
-      console.error(error);
+  const handleDescriptionChange = (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    let newValue = event.target.value
+    if (newValue && newValue !== description) {
+      setDescription(newValue)
     }
   }
 
-  async function handleAdd() {
+  const handleAdd = async () => {
     try {
-      alert('todo');
+      await addTodo(description)
+      await getItems()
     } catch (error) {
-      console.error(error);
+      // todo: show notification
+    } finally {
+      handleClear()
     }
   }
 
-  function handleClear() {
-    setDescription('');
+  const handleClear = () => {
+    setDescription("")
   }
 
-  async function handleMarkAsComplete(item: any) {
+  const handleMarkAsComplete = async (item: any) => {
     try {
-      alert('todo');
+      alert("todo")
     } catch (error) {
-      console.error(error);
+      console.error(error)
+    }
+  }
+
+  const getItems = async() => {
+    try {
+      const todoItems = await getAllTodo()
+      setItems(todoItems)
+    } catch (error) {
+      // todo: notifications
     }
   }
 
@@ -134,7 +112,7 @@ const App = () => {
                   Display (GET) all the current Todo Items in the below grid and display them in any order you wish
                 </li>
                 <li>
-                  Bonus points for completing the 'Mark as completed' button code for allowing users to update and mark
+                  Bonus points for completing the "Mark as completed" button code for allowing users to update and mark
                   a specific Todo Item as completed and for displaying any relevant validation errors/ messages from the
                   API in the UI
                 </li>
@@ -144,7 +122,9 @@ const App = () => {
           </Col>
         </Row>
         <Row>
-          <Col>{renderAddTodoItemContent()}</Col>
+          <Col>
+            <TodoAddPanel value={description} onChange={handleDescriptionChange} onClear={handleClear} onAdd={handleAdd} />
+          </Col>
         </Row>
         <br />
         <Row>
@@ -160,7 +140,7 @@ const App = () => {
         </div>
       </footer>
     </div>
-  );
-};
+  )
+}
 
-export default App;
+export default App
